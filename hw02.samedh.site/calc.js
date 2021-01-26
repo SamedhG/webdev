@@ -1,68 +1,100 @@
 (function() {
     "use strict";
-    // The ID of the function is where it appears in this list
+    // The available functions: 
+    // NOTE: ID of the function is where it appears in this list
     const funcs = ["+/=", "-", "*", "/"]
-    // A function ID
-    let curr_func =  0;
-    let curr_num = 0;
-    let dec = false;
-    let next_num = false;
+
+    // The state of the calculator
+    let state = {
+        // The currently selected function
+        curr_func: 0,
+        // The number currently in memory
+        curr_num: 0,
+        // Was the decimal point already added?
+        dec: false,
+        // Are we ready to start taking the next number?
+        next_num: false
+    }
+
+    /**
+     * This is called when a number button is pressed
+     * int n: the digit that was pressed
+     */
     function num(n) {
         let display = document.getElementById('display');
-        if(next_num) {
+        if(state.next_num) {
             display.innerText = n
-            next_num = false;
+            state.next_num = false;
         }
         else if (display.innerText.length <= 10) {
             display.innerText = display.innerText + n
         }
     }
 
+    /**
+     * This is called when one of the function buttons are pressed
+     * int n: Represents the id of the operator that was pressed.
+     */
     function fun(n) {
         let display = document.getElementById('display');
-        if (!next_num) {
+        if (!state.next_num) {
             let num = parseFloat(display.innerText);
-            switch(curr_func) {
+            switch(state.curr_func) {
                 case 0:
-                    curr_num = curr_num + num;
+                    state.curr_num = state.curr_num + num;
                     break;
                 case 1:
-                    curr_num = curr_num - num;
+                    state.curr_num = state.curr_num - num;
                     break;
                 case 2:
-                    curr_num = curr_num * num;
+                    state.curr_num = state.curr_num * num;
                     break;
                 case 3:
-                    curr_num = curr_num / num;
+                    state.curr_num = state.curr_num / num;
                     break;
                 default: 
                     alert("error")
             }
-            display.innerText = curr_num;
+            display.innerText = state.curr_num;
         }
-        next_num = true;
-        document.getElementById(funcs[curr_func]).className = "button";
+        state.next_num = true;
+        document.getElementById(funcs[state.curr_func]).className = "button";
         document.getElementById(funcs[n]).className = "selected_button";
-        curr_func = n;
+        state.curr_func = n;
     }
 
+    /**
+     * This is called when the clear button is pressed
+     * Resets the state of the calculator
+     */
     function clear() {
-        dec = false;
-        curr_num = 0;
-        next_num = false;
-        curr_func = 0;
+        state.dec = false;
+        state.curr_num = 0;
+        state.next_num = false;
+        state.curr_func = 0;
+        for (let i = 0; i < 4; i++) {
+            document.getElementById(funcs[i]).className = "button";
+        }
         document.getElementById('display').innerText = "";
     }
-    
+   
+    /**
+     * This called when the decimal button is pressed:
+     *  makes sure that the decimal button was not previously pressed.
+     */
     function decimal() {
-        if (dec == false) num(".")
-        dec = true;
+        if (!state.dec) num(".")
+        state.dec = true;
     }
 
+
+    /**
+     * Called onLoad and creates all the buttons needed for the calculator
+     */
     function setup_calc () {
         let main = document.getElementById('calc');
         // The bottom row added manually
-        // THe clean button
+        // The clear button
         let button = document.createElement("DIV");
         button.innerHTML = "C";
         button.className = "button";
